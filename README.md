@@ -29,6 +29,33 @@ A breakdown of my algorithm:
 
 1. Replace "Ω" [U+2126] with "Ω" [U+03A9] throughout document (per Note 2 of Unicode Standard Character 2126)
 
+### The Regex
+
+My first stab at a regular expression is as follows (newlines and tabs added for clarity):
+
+```csharp
+private const string quantity = @"[-−‐-―]?(?:\d+\.\d+|\d+|\.\d+|\d+\.)";
+private const string whitespace = @"[ \t  -   ]*";
+private const string SIPrefixes = @"da|[YZEPTGMkhdcmμnpfazy]";
+private const string SIUnits = @"Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ]";
+private static readonly string SIPrefixedUnits = $"(?:{SIPrefixes})?(?:{SIUnits})";
+private const string SILog = @"m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?";
+private const string binary = @"[KMGTPEZY]i[bB]";
+private const string additional = @"[Mkdcm]?bar|mmHg|ha|min|[Åbhdt]";
+private const string custom = @"kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC";
+private const string pm = @"±|\+\/[-−‐-―]";
+private const string preamble = @"[≤≥<>\+±]?";
+private static readonly string units = $@"(?:(?:{SIPrefixedUnits}|{SILog}|{binary}|{additional}|{custom})\b)|%";
+private static readonly string full = $@"({preamble}){whitespace}({quantity}){whitespace}(?:(?:({units})|(\w+\b)){whitespace})?(?:(?:{pm}){whitespace}({quantity}){whitespace}(?:({units})|(\w+\b))|\+{whitespace}({quantity}){whitespace}(?:({units})|(\w+\b)){whitespace}\/{whitespace}[-−‐-―]{whitespace}({quantity}){whitespace}(?:({units})|(\w+\b)))?";
+private readonly Regex regex = new Regex($@"{full}", RegexOptions.Compiled);
+```
+
+This regular expression matches a number with any word that follows. Obviously, this is too generous. I could eliminate the `|(\w+\b)` piece, but it serves a useful purpose. In those cases where a non-standard unit is used, I don't want it to be neglected. If there is a tolerance listed, I wish to either format the quantiy properly, or flag if mixed units are present. If someone writes "123foo+456bar/-789baz", that should be flagged. If, instead, someone wrote "999±1bacon", it should be parsed and reformatted as "999 bacon ± 1 bacon". Delicious. On the other hand, if someone writes "Section 22 Category R", I definitely *do not* want it to be parsed as "22 Category" and reformatted as "22 Category". This is why it's separated from the `(?'units')` definition—so it's *captured* separately. So a good portion of the logic will come after a match has been made, based on which groups actually capture something.
+
+In the expanded form, it looks like this:
+
+`([≤≥<>\+±]?)[ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d|\d+\.))[ \t  -   ]*(?:(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Å5bhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b))[ \t  -   ]*)?(?:(?:±|\+\/[-−‐-―])[ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d|\d+\.))[ \t  -   ]*(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Å5bhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b))|\+[ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d|\d+\.))[ \t  -   ]*(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Å5bhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b))[ \t  -   ]*\/[ \t  -   ]*[-−‐-―][ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d|\d+\.))[ \t  -   ]*(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Å5bhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b)))?`
+
 ### Limitations
 
 1. Word "fields" do not count as characters in text (or, rather, the entire field counts as a single character...I think), so when selecting text to replace, selection would not necessarily be in the expected location.
@@ -56,4 +83,3 @@ A breakdown of my algorithm:
   - Selection To Link
   - Find Broken Links
   - Create Acronym Table
-  

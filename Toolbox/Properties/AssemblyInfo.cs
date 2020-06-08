@@ -1,13 +1,15 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Toolbox")]
-[assembly: AssemblyDescription("A collection of (possibly) useful tools for Microsoft Word")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("James Classen")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Toolbox")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
@@ -19,7 +21,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("26392e1c-6a48-4472-b600-4967a2856ef4")]
+[assembly: Guid("685b1a9e-f45f-4519-9096-32d4ac94377b")]
 
 // Version information for an assembly consists of the following four values:
 //

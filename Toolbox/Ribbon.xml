@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<customUI onLoad="Ribbon_Load" xmlns="http://schemas.microsoft.com/office/2006/01/customui">
+    <ribbon>
+        <tabs>
+            <tab idMso="TabAddIns" label="Toolbox">
+                <group id="grpUnits" label="Units">
+                    <button id="btnFixQuantities" imageMso="AutoFormatWizard" keytip="Q" screentip="Fix Quantities" supertip="Scans the document and corrects quantities with attached units to conform to NIST Special Publication 811. E.g., will convert &quot;1+/-0.01mA&quot; to &quot;1.00 mA ± 0.01 mA&quot;" label="Fix Quantities" onAction="FixQuantity" />
+                </group>
+            </tab>
+        </tabs>
+    </ribbon>
+</customUI>

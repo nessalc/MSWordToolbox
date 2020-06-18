@@ -1,12 +1,39 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<customUI onLoad="Ribbon_Load" xmlns="http://schemas.microsoft.com/office/2006/01/customui">
+<customUI onLoad="Ribbon_Load" xmlns="http://schemas.microsoft.com/office/2009/07/customui">
     <ribbon>
         <tabs>
             <tab idMso="TabAddIns" label="Toolbox">
                 <group id="grpUnits" label="Units">
-                    <button id="btnFixQuantities" imageMso="AutoFormatWizard" keytip="Q" screentip="Fix Quantities" supertip="Scans the document and corrects quantities with attached units to conform to NIST Special Publication 811. E.g., will convert &quot;1+/-0.01mA&quot; to &quot;1.00 mA ± 0.01 mA&quot;" label="Fix Quantities" onAction="FixQuantity" />
+                    <button id="btnFixSingleQuantity" imageMso="AutoFormatWizard" keytip="SQ" screentip="Fix Single Quantity" supertip="Corrects the highlighted quantity with attached units to conform to NIST Special Publication 811. E.g., will convert &quot;1+/-0.01mA&quot; to &quot;1.00 mA ± 0.01 mA&quot;" label="Fix Single Quantity" onAction="FixSingleQuantity" />
+					<button id="btnFixQuantities" imageMso="AutoFormatWizard" keytip="Q" screentip="Fix Quantities" supertip="Scans the document and corrects quantities with attached units to conform to NIST Special Publication 811. E.g., will convert &quot;1+/-0.01mA&quot; to &quot;1.00 mA ± 0.01 mA&quot;" label="Fix Quantities" onAction="FixQuantities" />
                 </group>
             </tab>
         </tabs>
     </ribbon>
+    <contextMenus>
+        <contextMenu idMso="ContextMenuText">
+            <menuSeparator id="ToolboxText"/>
+            <button id="mnuFixQuantityText" label="Fix Quantity" onAction="FixSingleQuantity" />
+        </contextMenu>
+        <contextMenu idMso="ContextMenuEndnote">
+            <menuSeparator id="ToolboxEndnote"/>
+            <button id="mnuFixQuantityEndnote" label="Fix Quantity" onAction="FixSingleQuantity" />
+        </contextMenu>
+        <contextMenu idMso="ContextMenuFootnote">
+            <menuSeparator id="ToolboxFootnote"/>
+            <button id="mnuFixQuantityFootnote" label="Fix Quantity" onAction="FixSingleQuantity" />
+        </contextMenu>
+        <contextMenu idMso="ContextMenuList">
+            <menuSeparator id="ToolboxList"/>
+            <button id="mnuFixQuantityList" label="Fix Quantity" onAction="FixSingleQuantity" />
+        </contextMenu>
+		<contextMenu idMso="ContextMenuTableCell">
+			<menuSeparator id="ToolboxTableCell"/>
+			<button id="mnuFixQuantityTableCell" label="Fix Quantity" onAction="FixSingleQuantity" />
+		</contextMenu>
+		<contextMenu idMso="ContextMenuTextTable">
+			<menuSeparator id="ToolboxTextTable"/>
+			<button id="mnuFixQuantityTextTable" label="Fix Quantity" onAction="FixSingleQuantity" />
+		</contextMenu>
+	</contextMenus>
 </customUI>

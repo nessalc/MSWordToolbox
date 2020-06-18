@@ -50,11 +50,32 @@ private static readonly string full = $@"({preamble}){whitespace}({quantity}){wh
 private readonly Regex regex = new Regex($@"{full}", RegexOptions.Compiled);
 ```
 
-This regular expression matches a number with any word that follows. Obviously, this is too generous. I could eliminate the `|(\w+\b)` piece, but it serves a useful purpose. In those cases where a non-standard unit is used, I don't want it to be neglected. If there is a tolerance listed, I wish to either format the quantiy properly, or flag if mixed units are present. If someone writes "123foo+456bar/-789baz", that should be flagged. If, instead, someone wrote "999±1bacon", it should be parsed and reformatted as "999 bacon ± 1 bacon". Delicious. On the other hand, if someone writes "Section 22 Category R", I definitely *do not* want it to be parsed as "22 Category" and reformatted as "22 Category". This is why it's separated from the `(?'units')` definition—so it's *captured* separately. So a good portion of the logic will come after a match has been made, based on which groups actually capture something.
+This regular expression matches a number with any word that follows. Obviously, this is too generous. I could eliminate the `|(\w+\b)` piece, but it serves a useful purpose. In those cases where a non-standard unit is used, I don't want it to be neglected. If there is a tolerance listed, I wish to either format the quantiy properly, or flag if mixed units are present. If someone writes "123foo+456bar/-789baz", that should be flagged. If, instead, someone wrote "999±1bacon", it should be parsed and reformatted as "999 bacon ± 1 bacon". Delicious. On the other hand, if someone writes "Section 22 Category R", I definitely *do not* want it to be parsed as "22 Category" and reformatted as "22 Category". This is why it's separated from the `units` definition—so it's *captured* separately. So a good portion of the logic will come after a match has been made, based on which groups actually capture something.
 
-In the expanded form, it looks like this:
+In the full expanded form, it looks like this:
 
-`([≤≥<>\+±]?)[ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d|\d+\.))[ \t  -   ]*(?:(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Å5bhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b))[ \t  -   ]*)?(?:(?:±|\+\/[-−‐-―])[ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d|\d+\.))[ \t  -   ]*(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Å5bhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b))|\+[ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d|\d+\.))[ \t  -   ]*(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Å5bhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b))[ \t  -   ]*\/[ \t  -   ]*[-−‐-―][ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d|\d+\.))[ \t  -   ]*(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Å5bhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b)))?`
+`([≤≥<>\+±]?)[ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d+|\d+\.))[ \t  -   ]*(?:(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Åbhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b))[ \t  -   ]*)?(?:(?:±|\+\/[-−‐-―])[ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d+|\d+\.))[ \t  -   ]*(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Åbhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b))|\+[ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d+|\d+\.))[ \t  -   ]*(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Åbhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b))[ \t  -   ]*\/[ \t  -   ]*[-−‐-―][ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d+|\d+\.))[ \t  -   ]*(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Åbhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b)))?`
+
+There are 14 capture groups here, as follows:
+
+|Group|Contains|
+|:-:|-|
+|0|Full Match|
+|1|Preamble (leading inequality, plus sign, or plus/minus sign)|
+|2|Main Quantity (number)|
+|3|Recognized Main Unit|
+|4|Unrecognized Main Unit|
+|5|Symmetric Tolerance Quantity|
+|6|Symmetric Tolerance Recognized Unit|
+|7|Symmetric Tolerance Unrecognized Unit|
+|8|Asymmetric Positive Tolerance Quantity|
+|9|Asymmetric Positive Tolerance Recognized Unit|
+|10|Asymmetric Positive Tolerance Unrecognized Unit|
+|11|Asymmetric Negative Tolerance Quantity|
+|12|Asymmetric Negative Tolerance Recognized Unit|
+|13|Asymmetric Negative Tolerance Unrecognized Unit|
+
+This allows some checks to be done. As there are many, many possibilities, I've left the details in the code for now.
 
 ### Limitations
 

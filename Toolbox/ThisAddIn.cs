@@ -22,7 +22,7 @@ namespace Toolbox
         }
         private void Application_WindowSelectionChange(Word.Selection Sel)
         {
-            //_ribbon.InvalidateToggle();
+            _ribbon.InvalidateToggle();
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)

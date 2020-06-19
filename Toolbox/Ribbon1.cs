@@ -9,6 +9,7 @@ using Microsoft.Office.Interop.Word;
 using System.Linq;
 using System.Globalization;
 using StringExtensions;
+using System.Windows.Controls;
 
 namespace Toolbox
 {
@@ -20,7 +21,7 @@ namespace Toolbox
         {
             return GetResourceText("Toolbox.Ribbon.xml");
         }
-        private void Ribbon1_Load(IRibbonUI ribbonUI)
+        public void Ribbon1_Load(IRibbonUI ribbonUI)
         {
             ribbon = ribbonUI;
         }
@@ -59,6 +60,7 @@ namespace Toolbox
         private static readonly string full = $@"({preamble}){whitespace}({quantity}){whitespace}(?:(?:({units})|({unknownUnits})|\b){whitespace})?(?:(?:{pm}){whitespace}({quantity}){whitespace}(?:({units})|({unknownUnits})|\b)|\+{whitespace}({quantity}){whitespace}(?:({units})|({unknownUnits})|\b){whitespace}\/{whitespace}[-−‐-―]{whitespace}({quantity}){whitespace}(?:({units})|({unknownUnits})|\b))?";
         private readonly Regex regexAll = new Regex($@"{full}", RegexOptions.Compiled);
         private readonly Regex regexSingle = new Regex($@"^{full}$", RegexOptions.Compiled);
+        private object missing = Type.Missing;
         private List<Range> GetRange(Range range, Regex regex)
         {
             List<Range> ranges = new List<Range>();
@@ -66,13 +68,14 @@ namespace Toolbox
             if (matchCollection.Count != 0)
             {
                 Range testRange = Globals.ThisAddIn.Application.ActiveDocument.Range(range.Start, range.End);
-                foreach (Match match in matchCollection) {
+                foreach (Match match in matchCollection)
+                {
                     testRange.End = range.Start + match.Index + match.Length;
                     testRange.Start = range.Start + match.Index;
                     int i = 1;
                     while ((testRange.Text != match.Groups[0].Value
-                            || testRange.Information[WdInformation.wdInFieldCode]
-                            || testRange.Information[WdInformation.wdInFieldResult])
+                            || (bool)testRange.Information[WdInformation.wdInFieldCode]
+                            || (bool)testRange.Information[WdInformation.wdInFieldResult])
                            && i <= range.Fields.Count)
                     {
                         Field field = range.Fields[i];
@@ -81,11 +84,21 @@ namespace Toolbox
                         testRange.Start += adjustment;
                         i++;
                     }
-                    if (testRange.Text == match.Groups[0].Value
-                        && !testRange.Information[WdInformation.wdInFieldCode]
-                        && !testRange.Information[WdInformation.wdInFieldResult])
+                    // Okay, so Word is funky with its fields. Who knew? Aside from everyone? I give up. Let's just
+                    // move forward a few characters until we find a match...or don't.
+                    i = 0;
+                    while (testRange.Text != match.Groups[0].Value && i < 5)
                     {
-                        Range rangeCopy = Globals.ThisAddIn.Application.ActiveDocument.Range(testRange.Start, testRange.End);
+                        testRange.End += 1;
+                        testRange.Start += 1;
+                        i++;
+                    }
+                    if (testRange.Text == match.Groups[0].Value
+                        && !(bool)testRange.Information[WdInformation.wdInFieldCode]
+                        && !(bool)testRange.Information[WdInformation.wdInFieldResult])
+                    {
+                        Range rangeCopy = Globals.ThisAddIn.Application.ActiveDocument.Range(testRange.Start,
+                                                                                             testRange.End);
                         ranges.Add(rangeCopy);
                     }
                 }
@@ -114,41 +127,96 @@ namespace Toolbox
             Globals.ThisAddIn.Application.ScreenUpdating = false;
 #endif
             IEnumerable<Paragraph> query = from Paragraph paragraph in Globals.ThisAddIn.Application.ActiveDocument.Paragraphs where paragraph.Range.Comments.Count == 0 && paragraph.Range.Bookmarks.Count == 0 select paragraph;
+            FormProgress progressForm = new FormProgress();
+            ProgressBar progressBar = progressForm.prgProgress;
+            progressBar.Maximum = query.Count();
+            progressBar.Value = 0;
+            progressBar.IsIndeterminate = true;
+            progressForm.BringIntoView();
+            progressForm.Show();
+            progressForm.Activate();
             foreach (Paragraph paragraph in query)
             {
+                // get normal font name:
+                Font normalFont = Globals.ThisAddIn.Application.ActiveDocument.Styles["Normal"].Font;
+                paragraph.Range.Find.Execute("µ", missing, missing, missing, missing, missing, missing, WdFindWrap.wdFindContinue, missing, "μ", WdReplace.wdReplaceAll, missing, missing, missing, missing);
+                Find findObject = Globals.ThisAddIn.Application.Selection.Find;
+                findObject.ClearFormatting();
+                findObject.Text = "\uF06D";
+                findObject.Font.Name = "Symbol";
+                findObject.Replacement.ClearFormatting();
+                findObject.Replacement.Text = "μ";
+                findObject.Replacement.Font = normalFont;
+                findObject.Execute(missing, missing, missing, missing, missing, missing, missing, WdFindWrap.wdFindContinue, missing, missing, WdReplace.wdReplaceAll, missing, missing, missing, missing);
+                paragraph.Range.Find.Execute("Ω", missing, missing, missing, missing, missing, missing, WdFindWrap.wdFindContinue, true, "Ω", WdReplace.wdReplaceAll, missing, missing, missing, missing);
+                findObject.ClearFormatting();
+                findObject.Text = "\uF057";
+                findObject.Font.Name = "Symbol";
+                findObject.Replacement.ClearFormatting();
+                findObject.Replacement.Text = "Ω";
+                findObject.Replacement.Font = normalFont;
+                findObject.Execute(missing, missing, missing, missing, missing, missing, missing, WdFindWrap.wdFindContinue, missing, missing, WdReplace.wdReplaceAll, missing, missing, missing, missing);
+                REReplace(paragraph.Range, $@"\bu({SIUnits})\b", "μ$1");
                 REReplace(paragraph.Range, @"(?<!A-Za-z])(?:([m\u03BC]?)(?:Sec|sec)|([m\u03BC])S)\b", "$1s");
                 REReplace(paragraph.Range, $@"(?<!A-Za-z])({SIPrefixes})?(?i)ohm\b", "$1Ω");
+                REReplace(paragraph.Range, $@"(\d+{whitespace})[oº]([FC]|{whitespace})", "$1°$2");
                 REReplace(paragraph.Range, $@"\bK({SIUnits})\b", "k$1");
-                REReplace(paragraph.Range, $@"\bu({SIUnits})\b", "μ$1");
                 REReplace(paragraph.Range, $@"(?<!\w)({whitespace})[\-−‐-―]{whitespace}(\d)", "$1-$2");
                 List<Range> ranges = GetRange(paragraph.Range, regexAll);
                 foreach (Range range in ranges)
                 {
                     //Fix Units
-                    range.Select();
-                    FixSingleQuantity(control);
+                    FixQuantityInRange(range);
                 }
+                progressBar.Value++;
+                progressBar.IsIndeterminate = false;
+                progressBar.InvalidateVisual();
             }
+            progressForm.Hide();
+            progressForm.Close();
             Globals.ThisAddIn.Application.ScreenUpdating = true;
         }
-        public void FixSingleQuantity(IRibbonControl control)
+        private void FixQuantityInRange(Range range)
         {
-#if !DEBUG
-            Globals.ThisAddIn.Application.ScreenUpdating = false;
-#endif
-            Selection selection = Globals.ThisAddIn.Application.Selection;
-            selection.MoveStartWhile("[({             ​  \r\a\n\t", WdConstants.wdForward);
-            selection.MoveEndWhile("             ​  \r\a\n\t})]", WdConstants.wdBackward);
-            string sel = selection.Text.Trim();
+            range.Find.Execute("µ", missing, missing, missing, missing, missing, missing, WdFindWrap.wdFindStop, missing, "μ", WdReplace.wdReplaceAll, missing, missing, missing, missing);
+            Find findObject = Globals.ThisAddIn.Application.Selection.Find;
+            findObject.ClearFormatting();
+            findObject.Text = "m";
+            findObject.Font.Name = "Symbol";
+            findObject.Replacement.ClearFormatting();
+            findObject.Replacement.Text = "μ";
+            findObject.Execute(missing, missing, missing, missing, missing, missing, missing, WdFindWrap.wdFindStop, missing, missing, WdReplace.wdReplaceAll, missing, missing, missing, missing);
+            range.Find.Execute("Ω", missing, missing, missing, missing, missing, missing, WdFindWrap.wdFindStop, true, "Ω", WdReplace.wdReplaceAll, missing, missing, missing, missing);
+            findObject.ClearFormatting();
+            findObject.Text = "W";
+            findObject.Font.Name = "Symbol";
+            findObject.Replacement.ClearFormatting();
+            findObject.Replacement.Text = "Ω";
+            findObject.Execute(missing, missing, missing, missing, missing, missing, missing, WdFindWrap.wdFindStop, missing, missing, WdReplace.wdReplaceAll, missing, missing, missing, missing);
+            REReplace(range, $@"\bu({SIUnits})\b", "μ$1");
+            REReplace(range, @"(?<!A-Za-z])(?:([m\u03BC]?)(?:Sec|sec)|([m\u03BC])S)\b", "$1s");
+            REReplace(range, $@"(?<!A-Za-z])({SIPrefixes})?(?i)ohm\b", "$1Ω");
+            REReplace(range, $@"(\d+{whitespace})[oº]([FC]|{whitespace})", "$1°$2");
+            REReplace(range, $@"\bK({SIUnits})\b", "k$1");
+            REReplace(range, $@"(?<!\w)({whitespace})[\-−‐-―]{whitespace}(\d)", "$1-$2");
+            range.MoveStartWhile("[({             ​  \r\a\n\t", WdConstants.wdForward);
+            range.MoveEndWhile("             ​  \r\a\n\t})]", WdConstants.wdBackward);
+            if (range.Text is null)
+            {
+                return;
+            }
+            string sel = range.Text.Trim();
             string result = "";
-            if (sel.Length != 0 && regexSingle.IsMatch(sel) && selection.Range.OMaths.Count == 0)
+            if (sel.Length != 0 && regexSingle.IsMatch(sel) && range.OMaths.Count == 0)
             {
                 Match match = regexSingle.Match(sel);
                 string[] unitMatches = new int[] { 3, 4, 6, 7, 9, 10, 12, 13 }.Select(x => match.Groups[x].Value).Where(s => s.Length != 0 && s != null).ToArray();
                 bool unitsMatch = unitMatches.All(s => s == unitMatches[0]);
                 bool knownUnit = new int[] { 3, 6, 9, 12 }.Select(x => match.Groups[x].Value).Where(s => s.Length != 0 && s != null).Any();
                 string units = unitMatches.FirstOrDefault(s => !string.IsNullOrEmpty(s)) ?? "";
-                int decimalCount = new int[] { 2, 5, 8, 11 }.Select(x => match.Groups[x].Value).Select(x => x.Length - (x.IndexOf('.') < 0 ? x.Length : x.IndexOf('.') + 1)).Max();
+                int decimalCount = new int[] { 2, 5, 8, 11 }.Select(x => match.Groups[x].Value)
+                                                            .Select(x => x.Length - (x.IndexOf('.') < 0 ? x.Length : x.IndexOf('.') + 1))
+                                                            .Max();
                 string format = $"F{decimalCount}";
                 decimal mainQuantity = decimal.Parse(match.Groups[2].Value.ReplaceMany("−‐‑‒–—―", '-'), CultureInfo.CurrentCulture);
                 decimal symTolerance = Math.Abs(decimal.Parse(match.Groups[5].Length != 0 ? match.Groups[5].Value : "0", CultureInfo.CurrentCulture));
@@ -166,7 +234,11 @@ namespace Toolbox
                 }
                 else if (posTolerance != negTolerance)
                 {
-                    tolerance = "+ " + posTolerance.ToString(format, CultureInfo.CurrentCulture) + $" {units}/− " + negTolerance.ToString(format, CultureInfo.CurrentCulture) + $" {units}";
+                    tolerance = "+ "
+                                + posTolerance.ToString(format, CultureInfo.CurrentCulture)
+                                + $" {units}/− "
+                                + negTolerance.ToString(format, CultureInfo.CurrentCulture)
+                                + $" {units}";
                 }
                 // Is there one provided unit?
                 if (unitsMatch && units.Length != 0)
@@ -193,7 +265,7 @@ namespace Toolbox
                 // There is more than one (mismatched) unit
                 else if (!unitsMatch && unitMatches.Length != 0)
                 {
-                    Comment comment = selection.Comments.Add(selection.Range, "Mismatched Units");
+                    Comment comment = range.Comments.Add(range, "Mismatched Units");
                     comment.Author = "Toolbox";
                     comment.Initial = "TBX";
                 }
@@ -214,9 +286,48 @@ namespace Toolbox
             }
             if (result.Length != 0)
             {
-                selection.Text = result;
+                range.Text = result;
             }
+        }
+        public void FixSingleQuantity(IRibbonControl control)
+        {
+#if !DEBUG
+            Globals.ThisAddIn.Application.ScreenUpdating = false;
+#endif
+            FixQuantityInRange(Globals.ThisAddIn.Application.Selection.Range);
             Globals.ThisAddIn.Application.ScreenUpdating = true;
+        }
+        public bool GetPageBreakBefore(IRibbonControl control)
+        {
+            return Globals.ThisAddIn.Application.Selection.ParagraphFormat.PageBreakBefore != 0;
+        }
+        public bool IsSelection()
+        {
+            return Globals.ThisAddIn.Application.Selection.End != Globals.ThisAddIn.Application.Selection.Start;
+        }
+        public bool IsUnit(IRibbonControl control)
+        {
+            if (IsSelection())
+            {
+                Range range = Globals.ThisAddIn.Application.Selection.Range;
+                range.MoveStartWhile("[({             ​  \r\a\n\t", WdConstants.wdForward);
+                range.MoveEndWhile("             ​  \r\a\n\t})]", WdConstants.wdBackward);
+                return regexSingle.IsMatch(range.Text);
+            }
+            return false;
+        }
+        public void TogglePageBreakBefore(IRibbonControl control, bool pressed)
+        {
+            ParagraphFormat format = Globals.ThisAddIn.Application.Selection.ParagraphFormat;
+            if (format.PageBreakBefore == 0)
+                format.PageBreakBefore = -1;
+            else
+                format.PageBreakBefore = 0;
+            InvalidateToggle();
+        }
+        public void InvalidateToggle()
+        {
+            ribbon.InvalidateControl("tglTogglePgBrk");
         }
     }
 }

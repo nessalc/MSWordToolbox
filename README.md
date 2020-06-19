@@ -27,7 +27,34 @@ Sometimes the errors are out of laziness: "I can't be bothered to figure out how
 
 A breakdown of my algorithm:
 
-1. Replace "Ω" [U+2126] with "Ω" [U+03A9] throughout document (per Note 2 of Unicode Standard Character 2126)
+1. Fix common mistakes
+    1. Replace instances of "µ" [U+00B5] with "μ" [U+03BC]
+    2. Replace instances of "" [U+F06D] in Symbol font with "μ" [U+03BC] in the font of the "Normal" style.
+    3. Replace "Ω" [U+2126] with "Ω" [U+03A9] throughout document (per Note 2 of Unicode Standard Character 2126)
+    4. Replace "" [U+F057] in Symbol font with "Ω" [U+03A9] in the font of the "Normal" style.
+    5. Replace a "u" preceding any SI unit with "μ" [U+03BC]
+    6. Replace "msec", "mSec", and "mS" with "ms"
+    7. Replace "μsec", "μSec", and "μS" with "μs"
+        - [ ] TODO: include usec, uSec, and uS
+    8. Replace the word "ohm" if it follows an SI prefix character
+    9. Replace a superscript "o" or "º" [U+00A7] (sometimes incorrectly used as degree signs) with "°" [U+00B0]
+    10. Replace "K" with "k" if used as an SI prefix
+    11. Replace various dashes with a hyphen-minus
+        - [ ] TODO: make this step more discriminating&mdash;probably needs a better regex
+2. Iterate through matches of the [regex](#the-regex)
+    1. Capture all units in the regex (see groups)
+    2. See if the units are in agreement (or if there's only one)
+    3. See if the units are recognized
+    4. Set the unit string to be used
+    5. Count the decimal places of the provided numbers (used as a proxy for significant figures) and prepare to format all numbers with that number of digits after the decimal place
+    6. Parse the tolerance and decide whether symmetric or asymmetric
+    7. If units match (from step 2) and a tolerance was included, build result string
+    8. If units match (from step 2) but no tolerance was included
+        1. Checks if the units are recognized (step 3)
+        2. Build string if they are
+        3. Ignore if not
+    9. If units do not match, flag with a comment and move to next match (skip step 10)
+    10. Replace match with "fixed" string
 
 ### The Regex
 
@@ -79,7 +106,7 @@ This allows some checks to be done. As there are many, many possibilities, I've 
 
 ### Limitations
 
-1. Word "fields" do not count as characters in text (or, rather, the entire field counts as a single character...I think), so when selecting text to replace, selection would not necessarily be in the expected location.
+1. Word "fields" are weird (see [here](https://findingmyname.com/microsoft-word-again/) for some of my research).
 2. Comments, bookmarks, and (as discussed) fields, count as special characters in Word and thus, if surrounding or interrupting a quantity when the macro is run, those values will not be matched or altered.
 
 ### Interesting Tidbits
@@ -89,18 +116,17 @@ This allows some checks to be done. As there are many, many possibilities, I've 
 ## TODO
 
 - Fix Quantities
+  - [ ] Only fix quantities in highlighted section, if applicable (entire document if nothing's highlighted)
+  - [ ] Fix progress bar: needs to run in separate thread or otherwise force visual updates
   - [ ] Add settings/options dialog
-  - [ ] Add right-click menu for updating a single quantity
-  - [ ] Allow planar angle markings (°′″) to be printed _without_ thin space preceding them.
   - [ ] Replace `'` with `′` and `"` with `″` where appropriate
   - [ ] Allow compound units and units with exponents, e.g. m<sup>2</sup>, m / s, V / m, N • m
-  - [ ] Fix issues noted above under [Method](#method)
 - Add other macros
-  - Edit Properties dialog
-    - Get Document Value
-    - Set Document Value
-  - Import/Export Properties
-  - Toggle Page Break Before
-  - Selection To Link
-  - Find Broken Links
-  - Create Acronym Table
+  - [ ] Edit Properties dialog
+    - [ ] Get Document Value
+    - [ ] Set Document Value
+  - [ ] Import/Export Properties
+  - [x] ~~Toggle Page Break Before~~
+  - [ ] Selection To Link
+  - [ ] Find Broken Links
+  - [ ] Create Acronym Table

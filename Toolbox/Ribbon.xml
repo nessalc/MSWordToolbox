@@ -1,11 +1,29 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<customUI onLoad="Ribbon1_Load" xmlns="http://schemas.microsoft.com/office/2009/07/customui">
+<customUI onLoad="Ribbon1_Load" xmlns="http://schemas.microsoft.com/office/2009/07/customui" loadImage="GetImage">
     <ribbon>
         <tabs>
             <tab idMso="TabAddIns" label="Toolbox">
                 <group id="grpUnits" label="Units">
-					<button id="btnFixQuantities" imageMso="AutoFormatWizard" keytip="Q" screentip="Fix Quantities" supertip="Scans the document and corrects quantities with attached units to conform to NIST Special Publication 811. E.g., will convert &quot;1+/-0.01mA&quot; to &quot;1.00 mA ± 0.01 mA&quot;" label="Fix Quantities" onAction="FixQuantities" />
-					<toggleButton id="tglTogglePgBrk" imageMso="PageBreakInsertOrRemove" screentip="Toggle Page Break Before" supertip="Toggles the paragraph style &quot;Page break before&quot;. This can be used to enforce page breaks within tables or in other places where a hard page break (Ctrl+Enter) is not desirable." onAction="TogglePageBreakBefore" getPressed="GetPageBreakBefore" label="Toggle Page Break Before" />
+					<button id="btnFixQuantities" imageMso="AutoFormatWizard"
+							screentip="Fix Quantities" supertip="Scans the document and corrects quantities with attached units to conform to NIST Special Publication 811. E.g., will convert &quot;1+/-0.01mA&quot; to &quot;1.00 mA ± 0.01 mA&quot;"
+							label="Fix Quantities" onAction="FixQuantities" keytip="Q" />
+					<toggleButton id="tglTogglePgBrk" imageMso="PageBreakInsertOrRemove"
+								  screentip="Toggle Page Break Before" supertip="Toggles the paragraph style &quot;Page break before&quot;. This can be used to enforce page breaks within tables or in other places where a hard page break (Ctrl+Enter) is not desirable."
+								  onAction="TogglePageBreakBefore" getPressed="GetPageBreakBefore" label="Toggle Page Break Before" keytip="B" />
+					<gallery id="galCharacterGallery" label="Character Gallery" imageMso="SymbolInsertGallery" keytip="G" onAction="InsertCharacter">
+						<item id="itmOhm" image="ohm" />
+						<item id="itmPlusMinus" image="pm" />
+						<item id="itmGreaterThanEqual" image="gte" />
+						<item id="itmLessThanEqual" image="lte" />
+						<item id="itmDegree" image="degree" />
+						<item id="itmMicro" image="micro" />
+						<item id="itmMultipy" image="multiply" />
+						<item id="itmDivide" image="divide" />
+						<item id="itmDelta" image="delta" />
+					</gallery>
+					<button id="btnFindBrokenLinks" imageMso="TextBoxLinkBreak"
+							screentip="Find and Note Broken Links" supertip="Flags any fields, cross-references, and bookmarks that are no longer attached to a valid object in the document with a comment."
+							onAction="FindBrokenLinks" label="Find and Note Broken Links" />
                 </group>
             </tab>
         </tabs>
@@ -13,30 +31,30 @@
     <contextMenus>
         <contextMenu idMso="ContextMenuText">
             <menuSeparator id="ToolboxText"/>
-            <button id="mnuFixQuantityText" label="Fix Quantity" onAction="FixSingleQuantity" getEnabled="IsUnit" />
-			<toggleButton id="mnuTogglePgBrkText" label="Toggle Page Break" getPressed="GetPageBreakBefore" onAction="TogglePageBreakBefore" />
+            <button id="mnuFixQuantityText" label="Fix &amp;Quantity" onAction="FixSingleQuantity" getEnabled="IsUnit" />
+			<toggleButton id="mnuTogglePgBrkText" label="Toggle Page &amp;Break" getPressed="GetPageBreakBefore" onAction="TogglePageBreakBefore" />
         </contextMenu>
         <contextMenu idMso="ContextMenuEndnote">
             <menuSeparator id="ToolboxEndnote"/>
-            <button id="mnuFixQuantityEndnote" label="Fix Quantity" onAction="FixSingleQuantity" getEnabled="IsUnit" />
+            <button id="mnuFixQuantityEndnote" label="Fix &amp;Quantity" onAction="FixSingleQuantity" getEnabled="IsUnit" />
 		</contextMenu>
         <contextMenu idMso="ContextMenuFootnote">
             <menuSeparator id="ToolboxFootnote"/>
-            <button id="mnuFixQuantityFootnote" label="Fix Quantity" onAction="FixSingleQuantity" getEnabled="IsUnit" />
+            <button id="mnuFixQuantityFootnote" label="Fix &amp;Quantity" onAction="FixSingleQuantity" getEnabled="IsUnit" />
 		</contextMenu>
         <contextMenu idMso="ContextMenuList">
             <menuSeparator id="ToolboxList"/>
-            <button id="mnuFixQuantityList" label="Fix Quantity" onAction="FixSingleQuantity" getEnabled="IsUnit" />
-			<toggleButton id="mnuTogglePgBrkList" label="Toggle Page Break" getPressed="GetPageBreakBefore" onAction="TogglePageBreakBefore" />
+            <button id="mnuFixQuantityList" label="Fix &amp;Quantity" onAction="FixSingleQuantity" getEnabled="IsUnit" />
+			<toggleButton id="mnuTogglePgBrkList" label="Toggle Page &amp;Break" getPressed="GetPageBreakBefore" onAction="TogglePageBreakBefore" />
 		</contextMenu>
 		<contextMenu idMso="ContextMenuTableCell">
 			<menuSeparator id="ToolboxTableCell"/>
-			<button id="mnuFixQuantityTableCell" label="Fix Quantity" onAction="FixSingleQuantity" getEnabled="IsUnit" />
+			<button id="mnuFixQuantityTableCell" label="Fix &amp;Quantity" onAction="FixSingleQuantity" getEnabled="IsUnit" />
 		</contextMenu>
 		<contextMenu idMso="ContextMenuTextTable">
 			<menuSeparator id="ToolboxTextTable"/>
-			<button id="mnuFixQuantityTextTable" label="Fix Quantity" onAction="FixSingleQuantity" getEnabled="IsUnit" />
-			<toggleButton id="mnuTogglePgBrkTextTable" label="Toggle Page Break" getPressed="GetPageBreakBefore" onAction="TogglePageBreakBefore" />
+			<button id="mnuFixQuantityTextTable" label="Fix &amp;Quantity" onAction="FixSingleQuantity" getEnabled="IsUnit" />
+			<toggleButton id="mnuTogglePgBrkTextTable" label="Toggle Page &amp;Break" getPressed="GetPageBreakBefore" onAction="TogglePageBreakBefore" />
 		</contextMenu>
 	</contextMenus>
 </customUI>

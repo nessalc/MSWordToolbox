@@ -128,5 +128,7 @@ This allows some checks to be done. As there are many, many possibilities, I've 
   - [ ] Import/Export Properties
   - [x] ~~Toggle Page Break Before~~
   - [ ] Selection To Link
-  - [ ] Find Broken Links
+  - [x] ~~Find Broken Links~~
   - [ ] Create Acronym Table
+  - [x] ~~Character Gallery~~
+    - [ ] Add selection of dashes and spaces (with labels)

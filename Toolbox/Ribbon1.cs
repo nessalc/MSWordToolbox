@@ -10,6 +10,8 @@ using System.Linq;
 using System.Globalization;
 using StringExtensions;
 using System.Windows.Controls;
+using Toolbox.Properties;
+using Drawing = System.Drawing;
 
 namespace Toolbox
 {
@@ -24,6 +26,15 @@ namespace Toolbox
         public void Ribbon1_Load(IRibbonUI ribbonUI)
         {
             ribbon = ribbonUI;
+        }
+        private bool ThumbnailCallback()
+        {
+            return false;
+        }
+        public Drawing.Bitmap GetImage(string imageName)
+        {
+            Drawing.Bitmap bmp = (Drawing.Bitmap)Resources.ResourceManager.GetObject(imageName);
+            return (Drawing.Bitmap)bmp.GetThumbnailImage(32, 32, ThumbnailCallback, IntPtr.Zero);
         }
         private static string GetResourceText(string resourceName)
         {
@@ -328,6 +339,80 @@ namespace Toolbox
         public void InvalidateToggle()
         {
             ribbon.InvalidateControl("tglTogglePgBrk");
+        }
+        public void FindBrokenLinks(IRibbonControl control)
+        {
+#if !DEBUG
+            Globals.ThisAddIn.Application.ScreenUpdating = false;
+#endif
+            int count = 0;
+            bool broken;
+            string bmname;
+            foreach (Field field in Globals.ThisAddIn.Application.ActiveDocument.Fields)
+            {
+                if (field.Type == WdFieldType.wdFieldRef)
+                {
+                    broken = false;
+                    bmname = (from elem in field.Code.Text.Split() where elem.Length != 0 select elem).ElementAt(1);
+                    if (!Globals.ThisAddIn.Application.ActiveDocument.Bookmarks.Exists(bmname) ||
+                        ((Style)Globals.ThisAddIn.Application.ActiveDocument.Bookmarks[bmname].Range
+                        .get_Style() == Globals.ThisAddIn.Application.ActiveDocument.Styles[WdBuiltinStyle.wdStyleNormal] &&
+                        field.Result.ToString() == "0"))
+                    {
+                        broken = true;
+                    }
+                    if (broken)
+                    {
+                        field.Select();
+                        Comment comment = Globals.ThisAddIn.Application.ActiveDocument.Comments.Add(Globals.ThisAddIn.Application.Selection.Range, "Broken link!");
+                        comment.Author = "Toolbox";
+                        comment.Initial = "TBX";
+                        count++;
+                    }
+                }
+            }
+            if (count > 0)
+            {
+                Globals.ThisAddIn.Application.ActiveDocument.RemovePersonalInformation = false;
+            }
+            Globals.ThisAddIn.Application.ScreenUpdating = true;
+            System.Windows.Forms.MessageBox.Show("Found "
+                + count.ToString(CultureInfo.CurrentCulture)
+                + " broken link"
+                + (count != 1 ? "s." : "."), "Broken Link Finder");
+        }
+        public void InsertCharacter(IRibbonControl control, string selectedId, int selectedIndex)
+        {
+            switch (selectedId)
+            {
+                case "itmOhm":
+                    Globals.ThisAddIn.Application.Selection.TypeText("\u03A9");
+                    break;
+                case "itmPlusMinus":
+                    Globals.ThisAddIn.Application.Selection.TypeText("\u00B1");
+                    break;
+                case "itmGreaterThanEqual":
+                    Globals.ThisAddIn.Application.Selection.TypeText("\u2265");
+                    break;
+                case "itmLessThanEqual":
+                    Globals.ThisAddIn.Application.Selection.TypeText("\u2264");
+                    break;
+                case "itmDegree":
+                    Globals.ThisAddIn.Application.Selection.TypeText("\u00B0");
+                    break;
+                case "itmMicro":
+                    Globals.ThisAddIn.Application.Selection.TypeText("\u03BC");
+                    break;
+                case "itmMultipy":
+                    Globals.ThisAddIn.Application.Selection.TypeText("\u00D7");
+                    break;
+                case "itmDivide":
+                    Globals.ThisAddIn.Application.Selection.TypeText("\u00F7");
+                    break;
+                case "itmDelta":
+                    Globals.ThisAddIn.Application.Selection.TypeText("\u0394");
+                    break;
+            }
         }
     }
 }

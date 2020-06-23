@@ -210,6 +210,36 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\LessThanEqual.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="lte.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="gte.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="micro.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ohm.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="pm.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="multiply.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="degree.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="delta.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="divide.png" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

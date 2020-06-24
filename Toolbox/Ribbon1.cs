@@ -137,7 +137,18 @@ namespace Toolbox
 #if !DEBUG
             Globals.ThisAddIn.Application.ScreenUpdating = false;
 #endif
-            IEnumerable<Paragraph> query = from Paragraph paragraph in Globals.ThisAddIn.Application.ActiveDocument.Paragraphs where paragraph.Range.Comments.Count == 0 && paragraph.Range.Bookmarks.Count == 0 select paragraph;
+            // See if anything is highlighted--if so, only work on that portion of the document.
+            Selection sel = Globals.ThisAddIn.Application.Selection;
+            int start = 0;
+            int end = Globals.ThisAddIn.Application.Selection.StoryLength;
+            if (sel.End - sel.Start != 0)
+            {
+                start = sel.Start;
+                end = sel.End;
+            }
+            IEnumerable<Paragraph> query = from Paragraph paragraph in Globals.ThisAddIn.Application.ActiveDocument.Paragraphs
+                                           where paragraph.Range.Comments.Count == 0 && paragraph.Range.Bookmarks.Count == 0 && paragraph.Range.Start > start && paragraph.Range.End < end
+                                           select paragraph;
             FormProgress progressForm = new FormProgress();
             ProgressBar progressBar = progressForm.prgProgress;
             progressBar.Maximum = query.Count();
@@ -170,14 +181,14 @@ namespace Toolbox
                 REReplace(paragraph.Range, $@"\bu({SIUnits})\b", "μ$1");
                 REReplace(paragraph.Range, @"(?<!A-Za-z])(?:([m\u03BC]?)(?:Sec|sec)|([m\u03BC])S)\b", "$1s");
                 REReplace(paragraph.Range, $@"(?<!A-Za-z])({SIPrefixes})?(?i)ohm\b", "$1Ω");
-                REReplace(paragraph.Range, $@"(\d+{whitespace})[oº]([FC]|{whitespace})", "$1°$2");
+                REReplace(paragraph.Range, $@"(\d+{whitespace})[oº⁰]([FC]|{whitespace})", "$1°$2");
                 REReplace(paragraph.Range, $@"\bK({SIUnits})\b", "k$1");
                 REReplace(paragraph.Range, $@"(?<!\w)({whitespace})[\-−‐-―]{whitespace}(\d)", "$1-$2");
                 List<Range> ranges = GetRange(paragraph.Range, regexAll);
                 foreach (Range range in ranges)
                 {
                     //Fix Units
-                    FixQuantityInRange(range);
+                    FixQuantityInRange(range); // ignore return value
                 }
                 progressBar.Value++;
                 progressBar.IsIndeterminate = false;
@@ -187,7 +198,7 @@ namespace Toolbox
             progressForm.Close();
             Globals.ThisAddIn.Application.ScreenUpdating = true;
         }
-        private void FixQuantityInRange(Range range)
+        private Range FixQuantityInRange(Range range)
         {
             range.Find.Execute("µ", missing, missing, missing, missing, missing, missing, WdFindWrap.wdFindStop, missing, "μ", WdReplace.wdReplaceAll, missing, missing, missing, missing);
             Find findObject = Globals.ThisAddIn.Application.Selection.Find;
@@ -214,7 +225,7 @@ namespace Toolbox
             range.MoveEndWhile("             ​  \r\a\n\t})]", WdConstants.wdBackward);
             if (range.Text is null)
             {
-                return;
+                return range;
             }
             string sel = range.Text.Trim();
             string result = "";
@@ -291,7 +302,7 @@ namespace Toolbox
                     //   That's caught in a previous if statement. That behavior should be a setting in a
                     //   future build.
                     // this branch exists for debug purposes and to show what is otherwise omitted.
-                    ((Action)(() => { }))();
+                    ((Action)(() => { }))(); // noop
                 }
 #endif
             }
@@ -299,13 +310,17 @@ namespace Toolbox
             {
                 range.Text = result;
             }
+            return range;
         }
         public void FixSingleQuantity(IRibbonControl control)
         {
 #if !DEBUG
             Globals.ThisAddIn.Application.ScreenUpdating = false;
 #endif
-            FixQuantityInRange(Globals.ThisAddIn.Application.Selection.Range);
+            // grab range to set selection after operation
+            Range range = FixQuantityInRange(Globals.ThisAddIn.Application.Selection.Range);
+            range.Select();
+            Globals.ThisAddIn.Application.Selection.Collapse(WdCollapseDirection.wdCollapseEnd);
             Globals.ThisAddIn.Application.ScreenUpdating = true;
         }
         public bool GetPageBreakBefore(IRibbonControl control)

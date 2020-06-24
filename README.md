@@ -37,7 +37,7 @@ A breakdown of my algorithm:
     7. Replace "μsec", "μSec", and "μS" with "μs"
         - [ ] TODO: include usec, uSec, and uS
     8. Replace the word "ohm" if it follows an SI prefix character
-    9. Replace a superscript "o" or "º" [U+00A7] (sometimes incorrectly used as degree signs) with "°" [U+00B0]
+    9. Replace a superscript "o", "º" [U+00A7] or "⁰" [U+2070] (sometimes incorrectly used as degree signs) with "°" [U+00B0]
     10. Replace "K" with "k" if used as an SI prefix
     11. Replace various dashes with a hyphen-minus
         - [ ] TODO: make this step more discriminating&mdash;probably needs a better regex
@@ -107,7 +107,7 @@ This allows some checks to be done. As there are many, many possibilities, I've 
 ### Limitations
 
 1. Word "fields" are weird (see [here](https://findingmyname.com/microsoft-word-again/) for some of my research).
-2. Comments, bookmarks, and (as discussed) fields, count as special characters in Word and thus, if surrounding or interrupting a quantity when the macro is run, those values will not be matched or altered.
+2. Comments, bookmarks, and (as discussed) fields, count as special characters in Word and thus, if surrounding or interrupting a quantity when the macro is run, those values will not be matched or altered. In fact, if a bookmark or comment is encountered, the entire paragraph in which it occurs is ignored. Fixing a single quantity via the context menu will still work in most cases.
 
 ### Interesting Tidbits
 
@@ -116,7 +116,8 @@ This allows some checks to be done. As there are many, many possibilities, I've 
 ## TODO
 
 - Fix Quantities
-  - [ ] Only fix quantities in highlighted section, if applicable (entire document if nothing's highlighted)
+  - [x] Only fix quantities in highlighted section, if applicable (entire document if nothing's highlighted)
+    - [ ] My fix is rather simplistic; could/should be improved.
   - [ ] Fix progress bar: needs to run in separate thread or otherwise force visual updates
   - [ ] Add settings/options dialog
   - [ ] Replace `'` with `′` and `"` with `″` where appropriate
@@ -132,3 +133,4 @@ This allows some checks to be done. As there are many, many possibilities, I've 
   - [ ] Create Acronym Table
   - [x] ~~Character Gallery~~
     - [ ] Add selection of dashes and spaces (with labels)
+    - [ ] Dynamically generate images with current font? (investigate feasibility)

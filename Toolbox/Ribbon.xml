@@ -11,15 +11,15 @@
 								  screentip="Toggle Page Break Before" supertip="Toggles the paragraph style &quot;Page break before&quot;. This can be used to enforce page breaks within tables or in other places where a hard page break (Ctrl+Enter) is not desirable."
 								  onAction="TogglePageBreakBefore" getPressed="GetPageBreakBefore" label="Toggle Page Break Before" keytip="B" />
 					<gallery id="galCharacterGallery" label="Character Gallery" imageMso="SymbolInsertGallery" keytip="G" onAction="InsertCharacter">
-						<item id="itmOhm" image="ohm" />
-						<item id="itmPlusMinus" image="pm" />
-						<item id="itmGreaterThanEqual" image="gte" />
-						<item id="itmLessThanEqual" image="lte" />
-						<item id="itmDegree" image="degree" />
-						<item id="itmMicro" image="micro" />
-						<item id="itmMultipy" image="multiply" />
-						<item id="itmDivide" image="divide" />
-						<item id="itmDelta" image="delta" />
+						<item id="itmOhm" image="ohm" label="Ohm" screentip="Ohm symbol" supertip="Represents the SI unit of resistance; also the last capital letter of the Greek alphabet" />
+						<item id="itmPlusMinus" image="pm" label="Plus/Minus" screentip="Plus/Minus Sign" supertip="Denotes the following quantity should be taken in both the positive and negative sense" />
+						<item id="itmGreaterThanEqual" image="gte" label="Greater Than or Equal To" />
+						<item id="itmLessThanEqual" image="lte" label="Less Than or Equal To" />
+						<item id="itmDegree" image="degree" label="Degrees" screentip="Degrees" supertip="Represents either a planar angle (i.e. 45°) or used as a part of a temperature scale (i.e. 25&#x2009;°C" />
+						<item id="itmMicro" image="micro" label="Micro" screentip="Micro symbol" supertip="Represents the SI prefix for 10&#x207b;&#x2076;; also the 12th lowercase letter of the Greek alphabet" />
+						<item id="itmMultipy" image="multiply" label="Multiplication Symbol" />
+						<item id="itmDivide" image="divide" label="Division Symbol" />
+						<item id="itmDelta" image="delta" label="Delta" screentip="Delta symbol" supertip="Often denotes a difference (e.g. &#x394;T can mean a change in temperature); also the 12th lowercase letter of the Greek alphabet"/>
 					</gallery>
 					<button id="btnFindBrokenLinks" imageMso="TextBoxLinkBreak"
 							screentip="Find and Note Broken Links" supertip="Flags any fields, cross-references, and bookmarks that are no longer attached to a valid object in the document with a comment."

@@ -123,9 +123,9 @@ This allows some checks to be done. As there are many, many possibilities, I've 
   - [ ] Allow compound units and units with exponents, e.g. m<sup>2</sup>, m / s, V / m, N • m
 - Add other macros
   - [ ] Edit Properties dialog
-    - [x] Get Document Value
-    - [x] Set Document Value
-  - [x] Import/Export Properties
+    - [x] ~~Get Document Value~~
+    - [x] ~~Set Document Value~~
+  - [x] ~~Import/Export Properties~~
   - [x] ~~Toggle Page Break Before~~
   - [x] Selection To Link
     - [ ] Improve dialog asking what type of reference to insert

@@ -12,6 +12,7 @@ using StringExtensions;
 using System.Windows.Controls;
 using Toolbox.Properties;
 using Drawing = System.Drawing;
+using Forms = System.Windows.Forms;
 
 namespace Toolbox
 {
@@ -34,7 +35,7 @@ namespace Toolbox
         public Drawing.Bitmap GetImage(string imageName)
         {
             Drawing.Bitmap bmp = (Drawing.Bitmap)Resources.ResourceManager.GetObject(imageName);
-            return (Drawing.Bitmap)bmp.GetThumbnailImage(32, 32, ThumbnailCallback, IntPtr.Zero);
+            return (Drawing.Bitmap)bmp.GetThumbnailImage(Settings.Default.IconSize, Settings.Default.IconSize, ThumbnailCallback, IntPtr.Zero);
         }
         private static string GetResourceText(string resourceName)
         {
@@ -55,7 +56,7 @@ namespace Toolbox
             }
             return null;
         }
-        private const string quantity = @"[-−‐-―]?(?:\d+\.\d+|\d+|\.\d+|\d+\.)";
+        private const string quantity = @"[-−‐-―]?(?:\d+\.\d+|\d+\.|\.\d+|\d+)";
         private const string whitespace = @"[ \t  -   ]*";
         private const string SIPrefixes = @"da|[YZEPTGMkhdcmμnpfazy]";
         private const string SIUnits = @"Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ]";
@@ -64,6 +65,7 @@ namespace Toolbox
         private const string binary = @"[KMGTPEZY]i[bB]";
         private const string additional = @"[Mkdcm]?bar|mmHg|ha|min|[Åbhdt]";
         private const string custom = @"kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC";
+        //string custom = Settings.Default.CustomUnits; //can't use here yet
         private const string pm = @"±|\+\/[-−‐-―]";
         private const string preamble = @"[≤≥<>\+±]?";
         private const string unknownUnits = @"\p{L}\w*\b";
@@ -180,10 +182,11 @@ namespace Toolbox
                 findObject.Execute(missing, missing, missing, missing, missing, missing, missing, WdFindWrap.wdFindContinue, missing, missing, WdReplace.wdReplaceAll, missing, missing, missing, missing);
                 REReplace(paragraph.Range, $@"\bu({SIUnits})\b", "μ$1");
                 REReplace(paragraph.Range, @"(?<!A-Za-z])(?:([m\u03BC]?)(?:Sec|sec)|([m\u03BC])S)\b", "$1s");
+                REReplace(paragraph.Range, @"(?<!A-Za-z])u[Ss](?:ec)?\b", "μs");
                 REReplace(paragraph.Range, $@"(?<!A-Za-z])({SIPrefixes})?(?i)ohm\b", "$1Ω");
                 REReplace(paragraph.Range, $@"(\d+{whitespace})[oº⁰]([FC]|{whitespace})", "$1°$2");
                 REReplace(paragraph.Range, $@"\bK({SIUnits})\b", "k$1");
-                REReplace(paragraph.Range, $@"(?<!\w)({whitespace})[\-−‐-―]{whitespace}(\d)", "$1-$2");
+                //REReplace(paragraph.Range, $@"(?<!\w)({whitespace})[\-−‐-―]{whitespace}(\d)", "$1-$2");
                 List<Range> ranges = GetRange(paragraph.Range, regexAll);
                 foreach (Range range in ranges)
                 {
@@ -220,7 +223,7 @@ namespace Toolbox
             REReplace(range, $@"(?<!A-Za-z])({SIPrefixes})?(?i)ohm\b", "$1Ω");
             REReplace(range, $@"(\d+{whitespace})[oº]([FC]|{whitespace})", "$1°$2");
             REReplace(range, $@"\bK({SIUnits})\b", "k$1");
-            REReplace(range, $@"(?<!\w)({whitespace})[\-−‐-―]{whitespace}(\d)", "$1-$2");
+            //REReplace(range, $@"(?<!\w)({whitespace})[\-−‐-―]{whitespace}(\d)", "$1-$2");
             range.MoveStartWhile("[({             ​  \r\a\n\t", WdConstants.wdForward);
             range.MoveEndWhile("             ​  \r\a\n\t})]", WdConstants.wdBackward);
             if (range.Text is null)
@@ -369,10 +372,9 @@ namespace Toolbox
                 {
                     broken = false;
                     bmname = (from elem in field.Code.Text.Split() where elem.Length != 0 select elem).ElementAt(1);
-                    if (!Globals.ThisAddIn.Application.ActiveDocument.Bookmarks.Exists(bmname) ||
-                        ((Style)Globals.ThisAddIn.Application.ActiveDocument.Bookmarks[bmname].Range
-                        .get_Style() == Globals.ThisAddIn.Application.ActiveDocument.Styles[WdBuiltinStyle.wdStyleNormal] &&
-                        field.Result.ToString() == "0"))
+                    if (!Globals.ThisAddIn.Application.ActiveDocument.Bookmarks.Exists(bmname)
+                        || ((Style)Globals.ThisAddIn.Application.ActiveDocument.Bookmarks[bmname].Range.get_Style() == Globals.ThisAddIn.Application.ActiveDocument.Styles[WdBuiltinStyle.wdStyleNormal]
+                        && field.Result.ToString() == "0"))
                     {
                         broken = true;
                     }
@@ -427,7 +429,284 @@ namespace Toolbox
                 case "itmDelta":
                     Globals.ThisAddIn.Application.Selection.TypeText("\u0394");
                     break;
+                case "itmNoBreakSpace": //00A0
+                case "itmThinSpace": //2009
+                case "itmZeroWidthSpace": //200B
+                case "itmEmSpace": //2003
+                case "itmEnSpace": //2002
+                case "itmZeroWidthNoBreakSpace": //FEFF?
+                case "itmHairSpace": //200A
+                case "itmFigureSpace": //2007
+                case "itmNarrowNoBreakSpace": //202F
+                case "itmPunctuationSpace": //2008
+                case "itmSixPerEmSpace": //2006
+                case "itmFourPerEmSpace": //2005
+                case "itmThreePerEmSpace": //2004
+                case "itmMediumMathematicalSpace": //205F
+                case "itmEmQuad": //2001
+                case "itmEnQuad": //2000
+                case "itmZeroWidthNonJoiner": //200C
+                case "itmZeroWidthJoiner": //200D
+                case "itmHyphen": //2010
+                case "itmNonBreakingHyphen": //2011
+                case "itmFigureDash": //2012
+                case "itmEnDash": //2013
+                case "itmEmDash": //2014
+                case "itmHorizontalBar": //2015
+                case "itmMinus": //2212
+                case "itmPrime": //2032
+                case "itmDoublePrime": //2033
+                case "itmTriplePrime": //2034
+                case "itmQuadruplePrime": //2057
+                case "itmPerMille": //2030
+                case "itmPerMyriad": //2031
+                case "itmNabla": //2207
+                case "itmMinusPlus": //2213
+                    break;
             }
+        }
+        public void ExportProperties(IRibbonControl control)
+        {
+            int idx;
+            float f = float.Parse(Globals.ThisAddIn.Application.Version, CultureInfo.CurrentCulture);
+            if (f == 16)
+            {
+                idx = 13;
+            }
+            else
+            {
+                idx = 12;
+            }
+            FileDialog fileDialog = Globals.ThisAddIn.Application.FileDialog[MsoFileDialogType.msoFileDialogSaveAs];
+            fileDialog.FilterIndex = idx;
+            fileDialog.InitialFileName = "properties.txt";
+            fileDialog.AllowMultiSelect = false;
+            if (fileDialog.Show() == -1)
+            {
+                string filename = fileDialog.SelectedItems.Item(1);
+                using StreamWriter file = new StreamWriter(filename);
+                foreach (DocumentProperty property in (DocumentProperties)Globals.ThisAddIn.Application.ActiveDocument.CustomDocumentProperties)
+                {
+                    file.WriteLine(property.Name + '\t' + property.Value);
+                }
+                if (Settings.Default.IncludeVariablesInExport)
+                {
+                    foreach (Variable variable in Globals.ThisAddIn.Application.ActiveDocument.Variables)
+                    {
+                        file.WriteLine(variable.Name + '\t' + variable.Value);
+                    }
+                }
+            }
+        }
+        public void ImportProperties(IRibbonControl control)
+        {
+            FileDialog fileDialog = Globals.ThisAddIn.Application.FileDialog[MsoFileDialogType.msoFileDialogFilePicker];
+            fileDialog.Filters.Clear();
+            fileDialog.Filters.Add("Text File", "*.txt");
+            fileDialog.Filters.Add("RTF File", "*.rtf");
+            fileDialog.Filters.Add("All Files", "*.*");
+            if (fileDialog.Show() == -1)
+            {
+                string filename = fileDialog.SelectedItems.Item(1);
+                foreach (string line in File.ReadLines(filename))
+                {
+                    try
+                    {
+                        var result = line.Split('\t');
+                        string name = result[0];
+                        string val = result[1];
+                        SetDocumentValue(name, val);
+                        //((Office.DocumentProperties)Globals.ThisAddIn.Application.ActiveDocument.CustomDocumentProperties).Add(name,
+                        //    false, Office.MsoDocProperties.msoPropertyTypeString, val);
+                    }
+                    catch (IndexOutOfRangeException)
+                    {
+
+                    }
+                }
+            }
+        }
+        private void SetDocumentValue(string PropOrVariableName, object value)
+        {
+            if (Settings.Default.PreferDocumentVariable)
+            {
+                Variables variables = Globals.ThisAddIn.Application.ActiveDocument.Variables;
+                variables[PropOrVariableName].Value = value.ToString();
+            }
+            else
+            {
+                DocumentProperties properties;
+                try
+                {
+                    properties = (DocumentProperties)Globals.ThisAddIn.Application.ActiveDocument.BuiltInDocumentProperties;
+                    properties[PropOrVariableName].Value = Convert.ChangeType(value, properties[PropOrVariableName].GetType(), CultureInfo.CurrentCulture);
+                }
+                catch (ArgumentException)
+                {
+                    try
+                    {
+                        properties = (DocumentProperties)Globals.ThisAddIn.Application.ActiveDocument.CustomDocumentProperties;
+                        object testval = properties[PropOrVariableName].Value;
+                        if (testval is string)
+                        {
+                            properties[PropOrVariableName].Value = value.ToString();
+                        }
+                        else if (testval is bool)
+                        {
+                            properties[PropOrVariableName].Value = bool.Parse(value.ToString());
+                        }
+                        else if (testval is int)
+                        {
+                            properties[PropOrVariableName].Value = int.Parse(value.ToString(), CultureInfo.CurrentCulture);
+                        }
+                        else if (testval is double)
+                        {
+                            properties[PropOrVariableName].Value = float.Parse(value.ToString(), CultureInfo.CurrentCulture);
+                        }
+                        else if (testval is DateTime)
+                        {
+                            properties[PropOrVariableName].Value = DateTime.Parse(value.ToString(), CultureInfo.CurrentCulture);
+                        }
+                    }
+                    catch (ArgumentException)
+                    {
+                        switch (value.GetType().Name)
+                        {
+                            case "String":
+                                ((DocumentProperties)Globals.ThisAddIn.Application.ActiveDocument.CustomDocumentProperties).Add(PropOrVariableName,
+                                    false, MsoDocProperties.msoPropertyTypeString, value);
+                                break;
+                            case "SByte":
+                            case "Int16":
+                            case "UInt16":
+                            case "Int32":
+                            case "UInt32":
+                            case "Int64":
+                            case "UInt64":
+                                ((DocumentProperties)Globals.ThisAddIn.Application.ActiveDocument.CustomDocumentProperties).Add(PropOrVariableName,
+                                    false, MsoDocProperties.msoPropertyTypeNumber, value);
+                                break;
+                            case "Single":
+                            case "Double":
+                            case "Decimal":
+                                ((DocumentProperties)Globals.ThisAddIn.Application.ActiveDocument.CustomDocumentProperties).Add(PropOrVariableName,
+                                    false, MsoDocProperties.msoPropertyTypeFloat, value);
+                                break;
+                            case "Boolean":
+                                ((DocumentProperties)Globals.ThisAddIn.Application.ActiveDocument.CustomDocumentProperties).Add(PropOrVariableName,
+                                    false, MsoDocProperties.msoPropertyTypeBoolean, value);
+                                break;
+                            case "DateTime":
+                                ((DocumentProperties)Globals.ThisAddIn.Application.ActiveDocument.CustomDocumentProperties).Add(PropOrVariableName,
+                                    false, MsoDocProperties.msoPropertyTypeDate, value);
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+        private object GetDocumentValue(string PropOrVariableName, object DefaultValue = null)
+        {
+            object retval;
+            try
+            {
+                Variables variables = Globals.ThisAddIn.Application.ActiveDocument.Variables;
+                retval = variables[PropOrVariableName].Value;
+            }
+            catch (ArgumentException)
+            {
+                DocumentProperties properties;
+                try
+                {
+                    properties = (DocumentProperties)Globals.ThisAddIn.Application.ActiveDocument.BuiltInDocumentProperties;
+                    retval = properties[PropOrVariableName].Value;
+                }
+                catch (ArgumentException)
+                {
+                    try
+                    {
+                        properties = (DocumentProperties)Globals.ThisAddIn.Application.ActiveDocument.CustomDocumentProperties;
+                        retval = properties[PropOrVariableName].Value;
+                    }
+                    catch (ArgumentException)
+                    {
+                        retval = DefaultValue;
+                    }
+                }
+            }
+            return retval;
+        }
+        public void UpdateAllFields(IRibbonControl control)
+        {
+#if !DEBUG
+            Globals.ThisAddIn.Application.ScreenUpdating = false;
+#endif
+            foreach (Section section in Globals.ThisAddIn.Application.ActiveDocument.Sections)
+            {
+                section.Headers[WdHeaderFooterIndex.wdHeaderFooterFirstPage].Range.Fields.Update();
+                section.Headers[WdHeaderFooterIndex.wdHeaderFooterEvenPages].Range.Fields.Update();
+                section.Headers[WdHeaderFooterIndex.wdHeaderFooterPrimary].Range.Fields.Update();
+                section.Footers[WdHeaderFooterIndex.wdHeaderFooterFirstPage].Range.Fields.Update();
+                section.Footers[WdHeaderFooterIndex.wdHeaderFooterEvenPages].Range.Fields.Update();
+                section.Footers[WdHeaderFooterIndex.wdHeaderFooterPrimary].Range.Fields.Update();
+            }
+            foreach (TableOfContents toc in Globals.ThisAddIn.Application.ActiveDocument.TablesOfContents)
+            {
+                toc.Update();
+            }
+            foreach (TableOfFigures tof in Globals.ThisAddIn.Application.ActiveDocument.TablesOfContents)
+            {
+                tof.Update();
+            }
+            foreach (TableOfAuthorities toa in Globals.ThisAddIn.Application.ActiveDocument.TablesOfContents)
+            {
+                toa.Update();
+            }
+            Globals.ThisAddIn.Application.ScreenUpdating = true;
+        }
+        public void SelectionToLink(IRibbonControl control)
+        {
+            Range range = Globals.ThisAddIn.Application.Selection.Range;
+            range.MoveStartWhile("[({             ​  \r\a\n\t", WdConstants.wdForward);
+            range.MoveEndWhile("             ​  \r\a\n\t})]", WdConstants.wdBackward);
+            range.Select();
+            string findRef = range.Text.Trim();
+            bool found = false;
+            if (findRef.Length != 0)
+            {
+                object[] refTypes = { WdReferenceType.wdRefTypeHeading, WdCaptionLabelID.wdCaptionTable, WdCaptionLabelID.wdCaptionFigure, WdCaptionLabelID.wdCaptionEquation, WdReferenceType.wdRefTypeNumberedItem };
+                foreach (var refType in refTypes)
+                {
+                    var references = (Array)(object)Globals.ThisAddIn.Application.ActiveDocument.GetCrossReferenceItems(refType);
+                    for (int idx = references.GetLowerBound(0); idx < references.GetUpperBound(0); idx++)
+                    {
+                        if (references.GetValue(idx).ToString().Contains(findRef))
+                        {
+                            found = true;
+                            WdReferenceKind referenceKind = WdReferenceKind.wdNumberNoContext;
+                            if ((WdReferenceType)refType != WdReferenceType.wdRefTypeHeading)
+                                referenceKind = WdReferenceKind.wdOnlyLabelAndNumber;
+                            Forms.DialogResult response = Forms.MessageBox.Show("\"Yes\" for just the item number, \"No\" for just the heading/title, or \"Cancel\" to cancel.",
+                                "Link Type", Forms.MessageBoxButtons.YesNoCancel);
+                            if (response == Forms.DialogResult.No)
+                            {
+                                if (refType == (object)WdReferenceType.wdRefTypeHeading)
+                                    referenceKind = WdReferenceKind.wdContentText;
+                                else
+                                    referenceKind = WdReferenceKind.wdEntireCaption;
+                            }
+                            Globals.ThisAddIn.Application.Selection.InsertCrossReference(refType, referenceKind, idx, true, false);
+                        }
+                        if (found)
+                            return;
+                    }
+                }
+            }
+            Forms.MessageBox.Show("Reference text not found.", "Not Found", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
+        }
+        public void OpenPropertyUpdater(IRibbonControl control)
+        {
+
         }
     }
 }

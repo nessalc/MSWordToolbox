@@ -24,6 +24,15 @@
 					<button id="btnFindBrokenLinks" imageMso="TextBoxLinkBreak"
 							screentip="Find and Note Broken Links" supertip="Flags any fields, cross-references, and bookmarks that are no longer attached to a valid object in the document with a comment."
 							onAction="FindBrokenLinks" label="Find and Note Broken Links" />
+					<button id="btnSelectionToLink" imageMso="FileLinksToFiles"
+							screentip="Convert Selected Reference to Link" supertip="Will convert the selected numbered reference (e.g. &quot;4.2.4.1&quot;, &quot;Table 2-1&quot;) to a cross-referenced, Ctrl-clickable link"
+							onAction="SelectionToLink" label="Selection To Link" />
+					<button id="btnExportProperties" imageMso="ExportTextFile"
+							screentip="Export Document Properties" supertip="Exports all custom document properties and document variables to a tab-delimited text file for modification outside of Word or use in another document."
+							onAction="ExportProperties" label="Export"/>
+					<button id="btnImportProperties" imageMso="ImportTextFile"
+							screentip="Import Document Properties" supertip="Imports document properties from a tab-delimited text file"
+							onAction="ImportProperties" label="Import"/>
                 </group>
             </tab>
         </tabs>

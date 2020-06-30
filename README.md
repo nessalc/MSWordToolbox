@@ -34,13 +34,11 @@ A breakdown of my algorithm:
     4. Replace "" [U+F057] in Symbol font with "Ω" [U+03A9] in the font of the "Normal" style.
     5. Replace a "u" preceding any SI unit with "μ" [U+03BC]
     6. Replace "msec", "mSec", and "mS" with "ms"
-    7. Replace "μsec", "μSec", and "μS" with "μs"
-        - [ ] TODO: include usec, uSec, and uS
+    7. Replace "μsec", "μSec", "μS", "usec", "uSec", and "uS" with "μs"
     8. Replace the word "ohm" if it follows an SI prefix character
     9. Replace a superscript "o", "º" [U+00A7] or "⁰" [U+2070] (sometimes incorrectly used as degree signs) with "°" [U+00B0]
     10. Replace "K" with "k" if used as an SI prefix
-    11. Replace various dashes with a hyphen-minus
-        - [ ] TODO: make this step more discriminating&mdash;probably needs a better regex
+    11. TODO: Replace certain dashes with a hyphen-minus (for use in float.Parse)
 2. Iterate through matches of the [regex](#the-regex)
     1. Capture all units in the regex (see groups)
     2. See if the units are in agreement (or if there's only one)
@@ -61,7 +59,7 @@ A breakdown of my algorithm:
 My first stab at a regular expression is as follows (newlines and tabs added for clarity):
 
 ```csharp
-private const string quantity = @"[-−‐-―]?(?:\d+\.\d+|\d+|\.\d+|\d+\.)";
+private const string quantity = @"[-−‐-―]?(?:\d+\.\d+|\d+\.|\.\d+|\d+)";
 private const string whitespace = @"[ \t  -   ]*";
 private const string SIPrefixes = @"da|[YZEPTGMkhdcmμnpfazy]";
 private const string SIUnits = @"Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ]";
@@ -121,14 +119,17 @@ This allows some checks to be done. As there are many, many possibilities, I've 
   - [ ] Fix progress bar: needs to run in separate thread or otherwise force visual updates
   - [ ] Add settings/options dialog
   - [ ] Replace `'` with `′` and `"` with `″` where appropriate
+  - [ ] Allow use of planar angles (e.g. 15° ± 1°)
   - [ ] Allow compound units and units with exponents, e.g. m<sup>2</sup>, m / s, V / m, N • m
 - Add other macros
   - [ ] Edit Properties dialog
-    - [ ] Get Document Value
-    - [ ] Set Document Value
-  - [ ] Import/Export Properties
+    - [x] Get Document Value
+    - [x] Set Document Value
+  - [x] Import/Export Properties
   - [x] ~~Toggle Page Break Before~~
-  - [ ] Selection To Link
+  - [x] Selection To Link
+    - [ ] Improve dialog asking what type of reference to insert
+    - [ ] Allow linking to numbered lists under sections given full context
   - [x] ~~Find Broken Links~~
   - [ ] Create Acronym Table
   - [x] ~~Character Gallery~~

@@ -116,22 +116,22 @@ This allows some checks to be done. As there are many, many possibilities, I've 
 - Fix Quantities
   - [x] Only fix quantities in highlighted section, if applicable (entire document if nothing's highlighted)
     - [ ] My fix is rather simplistic; could/should be improved.
-  - [ ] Fix progress bar: needs to run in separate thread or otherwise force visual updates
-  - [ ] Add settings/options dialog
+  - [ ] Fix progress bar: needs to run in separate thread or otherwise force visual updates [Issue #3]
+  - [ ] Add settings/options dialog [Issue #5]
   - [ ] Replace `'` with `′` and `"` with `″` where appropriate
-  - [ ] Allow use of planar angles (e.g. 15° ± 1°)
+  - [ ] Allow use of planar angles (e.g. 15° ± 1°) [Issue #4]
   - [ ] Allow compound units and units with exponents, e.g. m<sup>2</sup>, m / s, V / m, N • m
 - Add other macros
-  - [ ] Edit Properties dialog
+  - [x] Edit Properties dialog
     - [x] ~~Get Document Value~~
     - [x] ~~Set Document Value~~
+    - [ ] Allow editing of bookmarks? (investigate feasibility)
   - [x] ~~Import/Export Properties~~
   - [x] ~~Toggle Page Break Before~~
   - [x] Selection To Link
     - [ ] Improve dialog asking what type of reference to insert
-    - [ ] Allow linking to numbered lists under sections given full context
+    - [ ] Allow linking to numbered lists under sections given full context [Issue #2]
   - [x] ~~Find Broken Links~~
   - [ ] Create Acronym Table
   - [x] ~~Character Gallery~~
-    - [ ] Add selection of dashes and spaces (with labels)
-    - [ ] Dynamically generate images with current font? (investigate feasibility)
+    - [ ] Dynamically generate images with current font. [Issue #1]

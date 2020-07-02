@@ -1,0 +1,43 @@
+﻿<Window x:Name="PropertyUpdater1" x:Class="Toolbox.PropertyUpdater"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             mc:Ignorable="d" SizeToContent="WidthAndHeight" Title="Property Updater" WindowStartupLocation="CenterScreen" ShowInTaskbar="False">
+    <Grid VerticalAlignment="Top" HorizontalAlignment="Left" Width="800" Height="450">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <ListBox x:Name="itemType" HorizontalAlignment="Stretch" Margin="10,10,5,10" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" SelectionChanged="ChooseType">
+            <!--
+            <ListBoxItem>Document Property</ListBoxItem>
+            <ListBoxItem>Document Variable</ListBoxItem>
+            <ListBoxItem>Bookmark</ListBoxItem>
+            -->
+        </ListBox>
+        <ListBox x:Name="itemList" HorizontalAlignment="Stretch" Margin="5,10,10,10" VerticalAlignment="Stretch" Grid.Row="0" Grid.Column="1" SelectionChanged="ChooseAttribute" />
+        <TextBox x:Name="txtContents" Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0" Margin="10,10,10,0" FontFamily="Calibri" />
+        <xctk:DateTimePicker x:Name="dtpDateTime" Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0" Margin="10,10,10,0" Visibility="Hidden" HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+        <xctk:IntegerUpDown x:Name="intValue" Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0" Margin="10,10,10,0" Visibility="Hidden" HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+        <xctk:DoubleUpDown x:Name="dblValue" Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0" Margin="10,10,10,0" Visibility="Hidden" HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+        <CheckBox x:Name="chkValue" Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0" Margin="10,10,10,0" Visibility="Hidden" HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+        <Button Content="Close" HorizontalAlignment="Stretch" Grid.Row="3" Margin="10,10,5,10" VerticalAlignment="Stretch" Click="CloseClick" IsCancel="True" />
+        <Button Content="Save" HorizontalAlignment="Stretch" Grid.Row="3" Margin="5,10,10,10" VerticalAlignment="Stretch" Grid.Column="1" Click="SaveClick" Name="btnSave" IsEnabled="False"/>
+        <Grid Grid.Row="1" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button Click="NewClick" Margin="5,0,5,0" Content="New" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            <Button Margin="5,0,10,0" Click="DeleteClick" Content="Delete" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        </Grid>
+    </Grid>
+</Window>

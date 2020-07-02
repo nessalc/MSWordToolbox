@@ -5,7 +5,7 @@
     <Setting Name="CustomUnits" Type="System.String" Scope="User">
       <Value Profile="(Default)">kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC</Value>
     </Setting>
-    <Setting Name="IncludeVariablesInExport" Type="System.Boolean" Scope="User">
+    <Setting Name="IncludeVariables" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="PreferDocumentVariable" Type="System.Boolean" Scope="User">
@@ -13,6 +13,15 @@
     </Setting>
     <Setting Name="IconSize" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">32</Value>
+    </Setting>
+    <Setting Name="FontSize" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">12</Value>
+    </Setting>
+    <Setting Name="IncludeBookmarks" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="SpecialCharacters" Type="System.Collections.Specialized.StringDictionary" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

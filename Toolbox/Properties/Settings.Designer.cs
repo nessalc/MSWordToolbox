@@ -38,12 +38,12 @@ namespace Toolbox.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool IncludeVariablesInExport {
+        public bool IncludeVariables {
             get {
-                return ((bool)(this["IncludeVariablesInExport"]));
+                return ((bool)(this["IncludeVariables"]));
             }
             set {
-                this["IncludeVariablesInExport"] = value;
+                this["IncludeVariables"] = value;
             }
         }
         
@@ -68,6 +68,41 @@ namespace Toolbox.Properties {
             }
             set {
                 this["IconSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("12")]
+        public int FontSize {
+            get {
+                return ((int)(this["FontSize"]));
+            }
+            set {
+                this["FontSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IncludeBookmarks {
+            get {
+                return ((bool)(this["IncludeBookmarks"]));
+            }
+            set {
+                this["IncludeBookmarks"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringDictionary SpecialCharacters {
+            get {
+                return ((global::System.Collections.Specialized.StringDictionary)(this["SpecialCharacters"]));
+            }
+            set {
+                this["SpecialCharacters"] = value;
             }
         }
     }

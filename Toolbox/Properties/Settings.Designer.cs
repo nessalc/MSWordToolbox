@@ -50,12 +50,12 @@ namespace Toolbox.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PreferDocumentVariable {
+        public bool PreferDocumentVariables {
             get {
-                return ((bool)(this["PreferDocumentVariable"]));
+                return ((bool)(this["PreferDocumentVariables"]));
             }
             set {
-                this["PreferDocumentVariable"] = value;
+                this["PreferDocumentVariables"] = value;
             }
         }
         
@@ -95,14 +95,12 @@ namespace Toolbox.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::System.Collections.Specialized.StringDictionary SpecialCharacters {
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        public string SpecialCharacters {
             get {
-                return ((global::System.Collections.Specialized.StringDictionary)(this["SpecialCharacters"]));
-            }
-            set {
-                this["SpecialCharacters"] = value;
+                return ((string)(this["SpecialCharacters"]));
             }
         }
     }

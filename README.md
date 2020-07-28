@@ -33,12 +33,13 @@ A breakdown of my algorithm:
     3. Replace "Ω" [U+2126] with "Ω" [U+03A9] throughout document (per Note 2 of Unicode Standard Character 2126)
     4. Replace "" [U+F057] in Symbol font with "Ω" [U+03A9] in the font of the "Normal" style.
     5. Replace a "u" preceding any SI unit with "μ" [U+03BC]
-    6. Replace "msec", "mSec", and "mS" with "ms"
-    7. Replace "μsec", "μSec", "μS", "usec", "uSec", and "uS" with "μs"
+    6. Replace "msec", "mSec", and "mS" with "ms" (replacing mS should be a setting, in case users actually use siemens on a regular basis)
+    7. Replace "μsec", "μSec", "μS", "usec", "uSec", and "uS" with "μs" (replacing μS/uS should be a setting, in case users actually use siemens on a regular basis)
     8. Replace the word "ohm" if it follows an SI prefix character
     9. Replace a superscript "o", "º" [U+00A7] or "⁰" [U+2070] (sometimes incorrectly used as degree signs) with "°" [U+00B0]
     10. Replace "K" with "k" if used as an SI prefix
     11. TODO: Replace certain dashes with a hyphen-minus (for use in float.Parse)
+    12. TODO: Replace "mho" and "℧" with "S"
 2. Iterate through matches of the [regex](#the-regex)
     1. Capture all units in the regex (see groups)
     2. See if the units are in agreement (or if there's only one)

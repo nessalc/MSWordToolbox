@@ -36,6 +36,7 @@
 					<button id="btnEditProperties" imageMso="PropertySheet"
 							screentip="Edit Document Properties" supertip="Brings up a dialog that allows the user to change document properties, document variables, and view bookmarks."
 							onAction="OpenPropertyUpdater" label="Edit"/>
+					<button id="btnSettings" onAction="OpenSettingsDialog" label="Settings" />
                 </group>
             </tab>
         </tabs>

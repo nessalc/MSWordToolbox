@@ -1,0 +1,53 @@
+﻿<Window x:Class="Toolbox.SettingsDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:properties="clr-namespace:Toolbox.Properties"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <StackPanel>
+            <CheckBox x:Name="cbPreferDocVars" Content="Prefer Document Variables" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=PreferDocumentVariables}" Click="cbPreferDocVars_Click" />
+            <CheckBox x:Name="cbIncludeBookmarks" Content="Include Bookmarks" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IncludeBookmarks}" Click="cbIncludeBookmarks_Click" />
+            <CheckBox x:Name="cbIncludeVariables" Content="Include Variables" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IncludeVariables}" Click="cbIncludeVariables_Click" />
+            <StackPanel Orientation="Horizontal">
+                <Label Margin="0 0 5 0" Grid.Row="1" Target="{Binding ElementName=txtTextSize}">Text _Size:</Label>
+                <xctk:UIntegerUpDown Name="txtTextSize" Text="{Binding Source={x:Static properties:Settings.Default}, Path=FontSize}" LostFocus="txtTextSize_LostFocus" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Margin="0 0 5 0" Grid.Row="1" Target="{Binding ElementName=txtIconSize}">_Icon Size:</Label>
+                <xctk:UIntegerUpDown Name="txtIconSize" Text="{Binding Source={x:Static properties:Settings.Default}, Path=IconSize}" LostFocus="txtIconSize_LostFocus" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Margin="0 0 5 0" Grid.Row="1" Target="{Binding ElementName=txtIconSize}">Custom Units:</Label>
+                <TextBox Name="txtCustomUnits" MinWidth="200" Text="{Binding Source={x:Static properties:Settings.Default}, Path=CustomUnits}" LostFocus="txtCustomUnits_LostFocus" />
+            </StackPanel>
+            <StackPanel Orientation="Vertical">
+                <Label Margin="0 0 5 0" Grid.Row="1" Target="{Binding ElementName=txtIconSize}">Special Characters Gallery:</Label>
+                <DataGrid CanUserAddRows="True" CanUserDeleteRows="True" CanUserResizeColumns="True" AutoGenerateColumns="False" MaxHeight="200" Height="200" Name="dgCharacters">
+                    <DataGrid.Resources>
+                        <Style x:Key="errorStyle" TargetType="{x:Type TextBox}">
+                            <Setter Property="Padding" Value="-2" />
+                            <Style.Triggers>
+                                <Trigger Property="Validation.HasError" Value="True">
+                                    <Setter Property="Background" Value="Red" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="Bold" />
+                                    <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)[0].ErrorContent}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name" Binding="{Binding name, TargetNullValue=(enter a name for the character)}" />
+                        <DataGridTextColumn Header="Description" Binding="{Binding description}" />
+                        <DataGridTextColumn Header="Character" EditingElementStyle="{StaticResource errorStyle}" Binding="{Binding character, ValidatesOnExceptions=True}" />
+                        <DataGridTextColumn Header="Code Point" EditingElementStyle="{StaticResource errorStyle}" Binding="{Binding codepoint, StringFormat={}{0:X4}, ValidatesOnExceptions=True}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

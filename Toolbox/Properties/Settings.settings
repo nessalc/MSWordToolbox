@@ -8,7 +8,7 @@
     <Setting Name="IncludeVariables" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="PreferDocumentVariable" Type="System.Boolean" Scope="User">
+    <Setting Name="PreferDocumentVariables" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="IconSize" Type="System.Int32" Scope="User">
@@ -20,7 +20,8 @@
     <Setting Name="IncludeBookmarks" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="SpecialCharacters" Type="System.Collections.Specialized.StringDictionary" Scope="User">
+    <Setting Name="SpecialCharacters" Type="(Connection string)" Scope="Application">
+      <DesignTimeValue Profile="(Default)" />
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

@@ -13,6 +13,7 @@ using System.Windows.Controls;
 using Toolbox.Properties;
 using Drawing = System.Drawing;
 using Forms = System.Windows.Forms;
+using System.Windows.Markup;
 
 namespace Toolbox
 {
@@ -612,7 +613,20 @@ namespace Toolbox
             propertyUpdater.itemType.SelectedItem = 0;
             propertyUpdater.ShowDialog();
         }
+        public void OpenSettingsDialog(IRibbonControl control)
+        {
+            SettingsDialog dlgSettings = new SettingsDialog();
+            dlgSettings.Show();
+        }
     }
+}
+
+public class CharacterItem
+{
+    public string name { get; set; }
+    public string description { get; set; }
+    public char character { get; set; }
+    public int codepoint { get; set; }
 }
 
 namespace StringExtensions

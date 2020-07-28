@@ -10,7 +10,7 @@ namespace Toolbox
     {
         public static void SetDocumentValue(string PropOrVariableName, object value)
         {
-            if (Settings.Default.PreferDocumentVariable)
+            if (Settings.Default.PreferDocumentVariables)
             {
                 Variables variables = Globals.ThisAddIn.Application.ActiveDocument.Variables;
                 variables[PropOrVariableName].Value = value.ToString();

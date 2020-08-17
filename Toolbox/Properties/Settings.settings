@@ -20,8 +20,7 @@
     <Setting Name="IncludeBookmarks" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="SpecialCharacters" Type="(Connection string)" Scope="Application">
-      <DesignTimeValue Profile="(Default)" />
+    <Setting Name="SpecialCharacters" Type="System.Collections.Specialized.StringDictionary" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

@@ -78,7 +78,7 @@ private readonly Regex regex = new Regex($@"{full}", RegexOptions.Compiled);
 
 This regular expression matches a number with any word that follows. Obviously, this is too generous. I could eliminate the `|(\w+\b)` piece, but it serves a useful purpose. In those cases where a non-standard unit is used, I don't want it to be neglected. If there is a tolerance listed, I wish to either format the quantiy properly, or flag if mixed units are present. If someone writes "123foo+456bar/-789baz", that should be flagged. If, instead, someone wrote "999±1bacon", it should be parsed and reformatted as "999 bacon ± 1 bacon". Delicious. On the other hand, if someone writes "Section 22 Category R", I definitely *do not* want it to be parsed as "22 Category" and reformatted as "22 Category". This is why it's separated from the `units` definition—so it's *captured* separately. So a good portion of the logic will come after a match has been made, based on which groups actually capture something.
 
-In the full expanded form, it looks like this:
+In the full expanded form, using the actual Unicode characters instead of their escaped forms (it could be longer), it looks like this:
 
 `([≤≥<>\+±]?)[ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d+|\d+\.))[ \t  -   ]*(?:(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Åbhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b))[ \t  -   ]*)?(?:(?:±|\+\/[-−‐-―])[ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d+|\d+\.))[ \t  -   ]*(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Åbhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b))|\+[ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d+|\d+\.))[ \t  -   ]*(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Åbhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b))[ \t  -   ]*\/[ \t  -   ]*[-−‐-―][ \t  -   ]*([-−‐-―]?(?:\d+\.\d+|\d+|\.\d+|\d+\.))[ \t  -   ]*(?:((?:(?:(?:da|[YZEPTGMkhdcmμnpfazy])?(?:Wb|Sv|Hz|sr|mol|lm|lx|cd|rad|Pa|Bq|Da|eV|ua|Gy|kat|°C|[gmsulAKNJWCVFSTHLΩ])|m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?|[KMGTPEZY]i[bB]|[Mkdcm]?bar|mmHg|ha|min|[Åbhdt]|kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC)\b)|%)|(\w+\b)))?`
 
@@ -118,7 +118,7 @@ This allows some checks to be done. As there are many, many possibilities, I've 
   - [x] Only fix quantities in highlighted section, if applicable (entire document if nothing's highlighted)
     - [ ] My fix is rather simplistic; could/should be improved.
   - [ ] Fix progress bar: needs to run in separate thread or otherwise force visual updates [Issue #3]
-  - [ ] Add settings/options dialog [Issue #5]
+  - [x] Add settings/options dialog [Issue #5]
   - [ ] Replace `'` with `′` and `"` with `″` where appropriate
   - [ ] Allow use of planar angles (e.g. 15° ± 1°) [Issue #4]
   - [ ] Allow compound units and units with exponents, e.g. m<sup>2</sup>, m / s, V / m, N • m

@@ -13,7 +13,6 @@ using System.Windows.Controls;
 using Toolbox.Properties;
 using Drawing = System.Drawing;
 using Forms = System.Windows.Forms;
-using System.Windows.Markup;
 
 namespace Toolbox
 {
@@ -256,33 +255,33 @@ namespace Toolbox
                     {
                         symTolerance = posTolerance;
                     }
-                    tolerance = "± " + symTolerance.ToString(format, CultureInfo.CurrentCulture) + $" {units}";
+                    tolerance = "± " + symTolerance.ToString(format, CultureInfo.CurrentCulture) + $" {units}";
                 }
                 else if (posTolerance != negTolerance)
                 {
-                    tolerance = "+ "
+                    tolerance = "+ "
                                 + posTolerance.ToString(format, CultureInfo.CurrentCulture)
-                                + $" {units}/− "
+                                + $" {units}/− "
                                 + negTolerance.ToString(format, CultureInfo.CurrentCulture)
-                                + $" {units}";
+                                + $" {units}";
                 }
                 // Is there one provided unit?
                 if (unitsMatch && units.Length != 0)
                 {
-                    main = mainQuantity.ToString(format, CultureInfo.CurrentCulture).Replace("-", "−") + $" {units}";
+                    main = mainQuantity.ToString(format, CultureInfo.CurrentCulture).Replace("-", "−") + $" {units}";
                     if (match.Groups[1].Value.Length > 0 && match.Groups[1].Value.IndexOfAny(new char[] { '+', '±' }) > -1)
                     {
                         main = $"{match.Groups[1].Value}{main}";
                     }
                     else if (match.Groups[1].Value.Length != 0)
                     {
-                        main = $"{match.Groups[1].Value} {main}";
+                        main = $"{match.Groups[1].Value} {main}";
                     }
                 }
                 if (unitsMatch && units.Length != 0 && tolerance.Length != 0 && main.Length != 0)
                 // include (!knownUnit || knownUnit) in future if settings enable this
                 {
-                    result = $"{main} {tolerance}";
+                    result = $"{main} {tolerance}";
                 }
                 else if (unitsMatch && units.Length != 0 && tolerance.Length == 0 && main.Length != 0 && knownUnit)
                 {
@@ -619,14 +618,6 @@ namespace Toolbox
             dlgSettings.Show();
         }
     }
-}
-
-public class CharacterItem
-{
-    public string name { get; set; }
-    public string description { get; set; }
-    public char character { get; set; }
-    public int codepoint { get; set; }
 }
 
 namespace StringExtensions

@@ -2,15 +2,13 @@
 
 While working at an aerospace firm, I spend far more time writing documents in Microsoft Word than doing things I enjoy, like coding. But I found that some of my tasks could be automated in Word through judicious use of macros. I spent...far too long writing those macros in VBA, which, in addition to being [dog-slow](https://ell.stackexchange.com/questions/140818/etymology-of-dog-slow?answertab=votes#tab-top), leaves much to be desired in terms of things like error handling and dialog design. Sure, there are a couple of advantages, but those can be co-opted or overcome easily in a different language. There do remain a few issues which are more related to Microsoft Word itself than any language used to interface _with_ it. Plus, it gave me an excuse to learn a new language, and to code!
 
-TL;DR
-
-I wrote some of what I consider to be useful macros for MS Word in C#. This is them.
+**TL;DR**: I wrote some of what I consider to be useful macros for MS Word in C#. This is them.
 
 **_Issues and pull requests are welcome!_**
 
 ## Fix Quantities
 
-One pet peeve of mine is the expression of quantites with tolerances in engineering documents. They should match (to the degree possible, even according to our own rules) [NIST SP811](https://www.nist.gov/pml/special-publication-811). I see all to often things like the following:
+One pet peeve of mine is the expression of quantites with tolerances in engineering documents. They should match (to the degree possible, even according to our own rules) [NIST SP811](https://www.nist.gov/pml/special-publication-811). This is more or less equivalent to ISO 31 and ISO/IEC 80000. I see all to often things like the following:
 
 |Incorrect|Correct|Note|
 |-|-|-|
@@ -19,7 +17,7 @@ One pet peeve of mine is the expression of quantites with tolerances in engineer
 |65 KB|64 KiB|One exception is for binary units which are sometimes ignored (despite guidance) and SI prefixes are used instead.|
 |115uA|115 μA|I often see the "micro-" prefix abbreviated with a "u" instead of "μ" [U+03BC] or even "µ" [U+00B5].|
 |28±0.50V|28.00 V ± 0.50 V|While not perfect, the number of decimal places can be used as a proxy for significant figures in much of our documentation.|
-|1mA±5μA|1.000 mA ± 0.0005 mA|Units must match, regardless of how many decimal places this adds to one or the other of the quantities.|
+|1mA±5μA|1.000 mA ± 0.005 mA|Units must match, regardless of how many decimal places this adds to one or the other of the quantities.|
 
 Sometimes the errors are out of laziness: "I can't be bothered to figure out how to type '±', 'μ', or 'Ω', let me just type what I know and move on." I can understand this sentiment, but it takes very little effort to rectify the situation. Nonetheless, this macro fixes (most) of the above. I can't accurately correct the KB/KiB conversion, so that is ignored, partly by technical limitations, and partly by design.
 
@@ -68,7 +66,7 @@ private static readonly string SIPrefixedUnits = $"(?:{SIPrefixes})?(?:{SIUnits}
 private const string SILog = @"m?Np|B|dB(?:FS|iC|m0s?|mV|ov|pp|rnC|sm|TP|μV|μ0s|VU| HL| Q| SIL| SPL| SWL|\/K|-Hz|[ABcCdefGiJkKmoOqruvVWZμ])?";
 private const string binary = @"[KMGTPEZY]i[bB]";
 private const string additional = @"[Mkdcm]?bar|mmHg|ha|min|[Åbhdt]";
-private const string custom = @"kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC";
+private const string custom = @"kts?|ft|lbs?|inHg|n?mi|psi|atm|°F|VDC"; //controlled by settings dialog
 private const string pm = @"±|\+\/[-−‐-―]";
 private const string preamble = @"[≤≥<>\+±]?";
 private static readonly string units = $@"(?:(?:{SIPrefixedUnits}|{SILog}|{binary}|{additional}|{custom})\b)|%";
@@ -76,7 +74,7 @@ private static readonly string full = $@"({preamble}){whitespace}({quantity}){wh
 private readonly Regex regex = new Regex($@"{full}", RegexOptions.Compiled);
 ```
 
-This regular expression matches a number with any word that follows. Obviously, this is too generous. I could eliminate the `|(\w+\b)` piece, but it serves a useful purpose. In those cases where a non-standard unit is used, I don't want it to be neglected. If there is a tolerance listed, I wish to either format the quantiy properly, or flag if mixed units are present. If someone writes "123foo+456bar/-789baz", that should be flagged. If, instead, someone wrote "999±1bacon", it should be parsed and reformatted as "999 bacon ± 1 bacon". Delicious. On the other hand, if someone writes "Section 22 Category R", I definitely *do not* want it to be parsed as "22 Category" and reformatted as "22 Category". This is why it's separated from the `units` definition—so it's *captured* separately. So a good portion of the logic will come after a match has been made, based on which groups actually capture something.
+This regular expression matches a number with any word that follows. Obviously, this is too generous. I could eliminate the `|(\w+\b)` piece, but it serves a useful purpose. In those cases where a non-standard unit is used, I don't want it to be neglected. If there is a tolerance listed, I wish to either format the quantiy properly, or flag if mixed units are present. If someone writes "123foo+456bar/-789baz", that should be flagged. If, instead, someone wrote "999±1bacon", it should be parsed and reformatted as "999 bacon ± 1 bacon". Delicious. On the other hand, if someone writes "Section 22 Category R", I definitely *do not* want it to be parsed as "22 Category" and reformatted as "22 Category". This is why it's separated from the `units` definition—so it's *captured* separately. So a good portion of the logic will come after a match has been made, based on which groups actually capture something.
 
 In the full expanded form, using the actual Unicode characters instead of their escaped forms (it could be longer), it looks like this:
 
@@ -108,19 +106,17 @@ This allows some checks to be done. As there are many, many possibilities, I've 
 1. Word "fields" are weird (see [here](https://findingmyname.com/microsoft-word-again/) for some of my research).
 2. Comments, bookmarks, and (as discussed) fields, count as special characters in Word and thus, if surrounding or interrupting a quantity when the macro is run, those values will not be matched or altered. In fact, if a bookmark or comment is encountered, the entire paragraph in which it occurs is ignored. Fixing a single quantity via the context menu will still work in most cases.
 
-### Interesting Tidbits
-
-- Word (2016-2019, at least) treats a thin space [U+2009] as a non-breaking space, so I utilized it instead of the narrow no-break space [U+202F]. Stylistically, quantities and their units and/or tolerances should not be broken across lines, so if Word ever changes this behavior, an alteration might be necessary. It might be valuable to include this as an option in a settings dialog.
-
 ## TODO
 
 - Fix Quantities
   - [x] Only fix quantities in highlighted section, if applicable (entire document if nothing's highlighted)
     - [ ] My fix is rather simplistic; could/should be improved.
   - [ ] Fix progress bar: needs to run in separate thread or otherwise force visual updates [Issue #3]
+  - [ ] Add "Cancel" function to stop in the middle
+  - [ ] Add "Undo" function to revert document to state before macro was run
   - [x] Add settings/options dialog [Issue #5]
   - [ ] Replace `'` with `′` and `"` with `″` where appropriate
-  - [ ] Allow use of planar angles (e.g. 15° ± 1°) [Issue #4]
+  - [ ] Allow use of planar angles (e.g. 15° ± 1°) [Issue #4]
   - [ ] Allow compound units and units with exponents, e.g. m<sup>2</sup>, m / s, V / m, N • m
 - Add other macros
   - [x] Edit Properties dialog
@@ -136,3 +132,8 @@ This allows some checks to be done. As there are many, many possibilities, I've 
   - [ ] Create Acronym Table
   - [x] ~~Character Gallery~~
     - [ ] Dynamically generate images with current font. [Issue #1]
+  - Settings Dialog
+    - [ ] Split numbers in groups with thin spaces [U+2009] (ISO 31-0)
+      - [ ] Include option to split with four digits or not
+    - [ ] Add override setting for system settings to control decimal or comma as decimal separator
+    - [ ] Include or exclude replacement of "mS" and "μS" with "ms" and "μs" (siemens with seconds)
